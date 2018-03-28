@@ -8,12 +8,12 @@ dh=550
 screen=pygame.display.set_mode((dw,dh))
 pygame.display.set_caption("new game")
 clock=pygame.time.Clock()
-black=(0,0,0)#rgb values for black
-white=(255,255,255)#rgb values for white
-rswidth=50 #rangership height
-rsheight=75#rangership width
-eswidth=50 #enemyship width
-esheight=75 #enemyship width
+black=(0,0,0)
+white=(255,255,255)
+rswidth=50
+rsheight=75
+eswidth=50
+esheight=75
 r_ship=pygame.image.load('r_ship.png').convert()
 r_ship=pygame.transform.scale(r_ship,(50,75))
 r_ship.set_colorkey(black)
@@ -27,33 +27,35 @@ e_bullet=pygame.transform.scale(e_bullet,(8,10))
 blast=pygame.image.load('residue.png').convert()
 blast=pygame.transform.scale(blast,(40,50))
 blast.set_colorkey(black)
-''' blit() fn is used for adding images to the screen'''
-x=480 #initial pos for ranger ship x-axis
-y=200 #initial pos of ranger ship y-axis
-x_change=0 #initial value for changing positions of ranger ship.
-y_change=0 #the same as above
-b_x=0 #variable for moving the ranger ship's bullet along x-axis
-
-'''ey,ey2,ey3,ey4 are y co-ordinates of the enemy ships'''
+gameover=pygame.image.load('enough.png').convert()
+gameover=pygame.transform.scale(gameover,(700,550))
+lifes=pygame.image.load('heart.png').convert()
+lifes=pygame.transform.scale(lifes,(20,24))
+emptylife=pygame.image.load('emptyheart.png').convert()
+emptylife=pygame.transform.scale(emptylife,(20,24))
+emptylife.set_colorkey(black)
+x=600
+y=200
+x_change=0
+y_change=0
+b_x=0
 ey=random.randrange(0,100)
 ey2=random.randrange(110,210)
 ey3=random.randrange(230,360)
 ey4=random.randrange(380,500)
-'''ex,ex2,ex3,ex4 are x-cordinates of the enemy ships'''
 ex=-10
-ex2=0-random.randrange(0,100)# we took the values of ex,ex2,ex3,ex4 in a random,
-#-ve number so that there would be time gap between appearance of each ship
+ex2=0-random.randrange(0,100)
 ex3=0-random.randrange(0,120)
 ex4=0-random.randrange(0,120)
-es=1 #speed of enemyships
-rbs=8 #bullet speed
-rbx=0 #init position for rangership bullet
-rby=0 #init pos for ranger bullet
-count=0 #counting how many ships have been dodged
-crashcount=0 #counting how many crashes have occured
+es=1
+rbs=8
+rbx=0
+rby=0
+count=0
+crashcount=0
 xc=0
 yc=0
-evar=random.randrange(1,5) #making the enemy ships appear randomly from any of given five locations
+evar=random.randrange(1,5)
 def text_objects(text, font):
     textSurface = font.render(text,True, white)
     return textSurface, textSurface.get_rect()
@@ -64,21 +66,24 @@ def message_display(text):
     TextRect.center = ((dw/2),(dh/2))
     screen.blit(TextSurf, TextRect)
     pygame.display.update()
-                    
+
+def life(crashcount):
+    if(crashcount==0):
+        screen.blit(lifes,(600,300))
     
-def crash(xc,yc): #crash code
+    
+def crash(xc,yc):
     message_display("you crashed")
-    screen.blit(blast,(xc,yc)) #blitting blast image at the crash location
+    screen.blit(blast,(xc,yc))
     pygame.display.update()
     time.sleep(1)
-    
-def rship(x,y): #making the rangership appear
+def rship(x,y):
     screen.blit(r_ship,(x,y))
 def rbullet(x,y):
     while(x>0):
         screen.blit(r_bullet1,(x,y+40))
         x=x-2
-def eship(ex,ey,es): #making the enemyship appear
+def eship(ex,ey,es):
     screen.blit(e_ship,(ex,ey))
     pygame.display.update()
 
@@ -86,34 +91,41 @@ def rbullet():
     screen.blit(r_bullet,(rbx,rby))
     rbx=x-n
 
-def e_var(evar): #making the enemyships appear from any of the five parts of y-axis
+def e_var(evar):
     if(evar==1):
-        eship(ex,random.randrange(0,100),es) #first part
+        eship(ex,random.randrange(0,100),es)
     elif(evar==2):
-        eship(ex,random.randrange(101,210),es)#second part
+        eship(ex,random.randrange(101,210),es)
     elif(evar==3):
-        eship(ex,random.randrange(211,320),es)#third part
+        eship(ex,random.randrange(211,320),es)
     elif(evar==4):
-        eship(ex,random.randrange(321,430),es)#fourth part
+        eship(ex,random.randrange(321,430),es)
     elif(evar==5):
-        eship(ex,random.randrange(431,525),es)#fifth part
+        eship(ex,random.randrange(431,525),es)
     
 
-def ships_dodged(count,crashcount): #record for the ships that have been dodged.
+def ships_dodged(count,crashcount):
     font = pygame.font.SysFont(None, 40)
     text = font.render("Dodged: "+str(count), True,white)
-    #counting total score
-    text3= font.render("total score "+str((count-crashcount)*5), True,white)#at bottom
+    text3= font.render("total score "+str((count-crashcount)*5), True,white)
     text2= font.render("you crashed: "+str(crashcount), True,white)
     screen.blit(text,(450,0))
     screen.blit(text2,(430,20))
     screen.blit(text3,(430,520))
 
+def gameoverfn():
+    font = pygame.font.SysFont(None, 100)
+    gameovertxt=font.render("enough crashes!!!!",True,white)
+    screen.blit(gameover,(0,0))
+    pygame.display.flip()
+    pygame.display.update()
+    
+
 close=False
-while not close: #main gameloop
-    for event in pygame.event.get(): #listening events from the keyboard
+while not close:
+    for event in pygame.event.get():
         print(event)
-        if event.type==pygame.QUIT: #matching the events when a key is pressed
+        if event.type==pygame.QUIT:
             close= True
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
@@ -128,27 +140,27 @@ while not close: #main gameloop
                 b_x=x
                 b_y=y
                 
-        if event.type == pygame.KEYUP: #matching the events when the presed key is released
+        if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                x_change =0 #we decided that the key up should do nothing
+                x_change =0
             
             
             elif event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-                y_change = 0
-    x+=x_change #changing ranger ship pos
+                y_change = 0   
+    x+=x_change
     y+=y_change
-    screen.fill(black)#initial screen
-    rship(x,y) #creating rangership
-    eship(ex,ey,es)#creating enemyships
+    screen.fill(black)
+    rship(x,y)
+    eship(ex,ey,es)
     eship(ex2,ey2,es)
     eship(ex3,ey3,es)
     eship(ex4,ey4,es)
-    ships_dodged(count,crashcount)#checking the dodged ships
-    ex+=1 #moving theenemy ships along the x-axis,but not along y
+    ships_dodged(count,crashcount)
+    ex+=1
     ex2+=1
     ex3+=1
     ex4+=1
-    if x >650: #creating the boundary for ranger ship, so that it may not go out of sight
+    if x >650:
         x=645
     elif x<0:
         x=0
@@ -156,35 +168,35 @@ while not close: #main gameloop
         y=465
     elif y<0:
         y=1
-    '''if ex>dw: #if enemyship 1 crosses the entire screen, then let it appear again from the start of screen
-        ex=0-5 #at -5 of x-axis
-        ey=random.randrange(0,dh) '''
+    if ex>dw:
+        ex=0-5
+        ey=random.randrange(0,dh)
 
-    if ex+eswidth > dw:#if enemyship 1 crosses the entire screen, then let it appear again from the start of screen
+    if ex+eswidth > dw:
             ex= 0 - 10
             ey = random.randrange(0,100)
             count += 1
             es+=1
-    if ex2+eswidth > dw:#reappearance of enemyship2
+    if ex2+eswidth > dw:
             ex2=0-random.randrange(0,150)
             ey2 = random.randrange(110,210)
             count += 1
             es+=1
 
-    if ex3+eswidth > dw:#reappearance of enemyship3
+    if ex3+eswidth > dw:
             ex3=0-random.randrange(0,120)
             ey3= random.randrange(230,360)
             count+= 1
             es+=1
 
-    if ex4+eswidth > dw:#reappearance of enemyship4
+    if ex4+eswidth > dw:
             ex4=0-random.randrange(0,150)
             ey4= random.randrange(380,500)
             count+= 1
             es+=1
             
-    if x==ex+eswidth: #matching locations of enemyship and rangership
-        print(x,"  ",ex," ",y)#so as to check for a crash and dodge
+    if x==ex+eswidth:
+        print(x,"  ",ex," ",y)
         if ey+esheight>y and ey+esheight<y+rsheight or ey>y and ey<y+rsheight:
             crash(x,y)
             crashcount+=1
@@ -204,8 +216,35 @@ while not close: #main gameloop
         if ey4+esheight>y and ey4+esheight<y+rsheight or ey4>y and ey4<y+rsheight:
             crash(x,y)
             crashcount+=1
-        '''i haven't updated the code for game over, but you can do it by modifying the crash() fn'''
+
+    if crashcount==0:
+        screen.blit(lifes,(410,20))
+        screen.blit(lifes,(380,20))
+        screen.blit(lifes,(350,20))
+        pygame.display.update()
+    if crashcount==1:
+        screen.blit(emptylife,(410,20))
+        screen.blit(lifes,(380,20))
+        screen.blit(lifes,(350,20))
+        pygame.display.update()
+    if crashcount==2:
+        screen.blit(emptylife,(410,20))
+        screen.blit(emptylife,(380,20))
+        screen.blit(lifes,(350,20))
+        pygame.display.update()
+    if crashcount==3:
+        screen.blit(emptylife,(410,20))
+        screen.blit(emptylife,(380,20))
+        screen.blit(emptylife,(350,20))
+        pygame.display.update()
+
     pygame.display.update()
     clock.tick(80)
-pygame.quit()
+    if(crashcount>=3):
+        time.sleep(2)
+        gameoverfn()
+        time.sleep(2)
+        pygame.quit()
+pygame.quit()        
 sys.exit()
+quit()
